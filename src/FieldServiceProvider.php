@@ -16,8 +16,8 @@ class FieldServiceProvider extends ServiceProvider
     public function boot()
     {
         Nova::serving(function (ServingNova $event) {
-            Nova::script('SelectDependOn', __DIR__.'/../dist/js/field.js');
-            Nova::style('SelectDependOn', __DIR__.'/../dist/css/field.css');
+            Nova::script('select-depend-on', __DIR__.'/../dist/js/field.js');
+            Nova::style('select-depend-on', __DIR__.'/../dist/css/field.css');
         });
     }
 

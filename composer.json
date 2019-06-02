@@ -24,6 +24,6 @@
     "config": {
         "sort-packages": true
     },
-    "minimum-stability": "prod",
+    "minimum-stability": "beta",
     "prefer-stable": true
 }

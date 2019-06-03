@@ -13,11 +13,7 @@ class SelectDependOn extends Field
      */
     public $component = 'select-depend-on';
 
-     /**
-     * The field depend on.
-     *
-     * @var string
-     */
+     
      /**
      * Set the options for the select menu.
      *
@@ -45,6 +41,14 @@ class SelectDependOn extends Field
                     ->first()['label'] ?? $value;
         });
     }
+
+    /**
+     * The field depend on other field.
+     *
+     * @param $value string
+     * @param  $array  options
+    */
+
     public function dependOn($value, $array)
     {
         return $this->withMeta([

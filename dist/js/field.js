@@ -1521,13 +1521,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
+
     mixins: [__WEBPACK_IMPORTED_MODULE_0_laravel_nova__["HandlesValidationErrors"], __WEBPACK_IMPORTED_MODULE_0_laravel_nova__["FormField"]],
+
     mounted: function mounted() {
         this.addFieldInfoToStore();
         var store = Nova.store.getters.getData;
         var fieldAttribute = this.field.attribute;
         var fieldValue = this.field.value;
-        var optionsToAdd = {};
+        var newOptions = {};
+        var self = this;
         Object.keys(store).forEach(function (idx) {
             if (store[idx].dependOn !== undefined) {
                 if (store[idx].field.toLowerCase() === fieldAttribute) {
@@ -1536,23 +1539,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                         Object.keys(store).forEach(function (idx) {
                             if (store[idx].field === dependOn.toLowerCase()) {
                                 var value = store[idx].value;
-                                Object.keys(store).forEach(function (idx) {
-                                    if (store[idx].dependOn !== undefined) {
-                                        if (store[idx].dependOn.toLowerCase() === dependOn.toLowerCase()) {
-                                            optionsToAdd = {
-                                                'options': store[idx].options[value],
-                                                'field': store[idx].field
-                                            };
-                                        }
-                                    }
-                                });
+                                var _newOptions = self.addDependFieldOptionsToSelect(store, dependOn, value);
                             }
                         });
                     }
                 }
             }
         });
-        this.addOptionsToSelect(optionsToAdd);
     },
 
     methods: {
@@ -1568,31 +1561,27 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         },
         onClick: function onClick(value) {
             this.addFieldInfoToStore();
-            var fieldAttribute = this.field.attribute;
             var store = Nova.store.getters.getData;
-            var optionsToAdd = {};
+            this.addDependFieldOptionsToSelect(store, this.field.attribute, value);
+        },
+        addDependFieldOptionsToSelect: function addDependFieldOptionsToSelect(store, fieldName, value) {
+            var newOptions = {};
             Object.keys(store).forEach(function (idx) {
                 if (store[idx].dependOn !== undefined) {
-                    if (store[idx].dependOn.toLowerCase() == fieldAttribute) {
-                        optionsToAdd = {
+                    if (store[idx].dependOn.toLowerCase() == fieldName.toLowerCase()) {
+                        newOptions = {
                             'options': store[idx].options[value],
                             'field': store[idx].field
                         };
                     }
                 }
             });
-            this.addOptionsToSelect(optionsToAdd);
+            this.addOptionsToSelect(newOptions);
         },
-        addOptionsToSelect: function addOptionsToSelect(optionsToAdd) {
-            if (!_.isEmpty(optionsToAdd)) {
-                document.getElementById(optionsToAdd.field).options.length = 1;
-                var el = document.getElementById(optionsToAdd.field);
-                for (var i in optionsToAdd.options) {
-                    var option = document.createElement("option");
-                    option.text = optionsToAdd.options[i];
-                    option.label = optionsToAdd.options[i];
-                    el.add(option);
-                }
+        addOptionsToSelect: function addOptionsToSelect(options) {
+            if (!_.isEmpty(options)) {
+                this.clearSelect(options.field);
+                this.createAndAddOptions(options);
             }
         },
         addFieldInfoToStore: function addFieldInfoToStore() {
@@ -1602,6 +1591,21 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 'dependOn': this.field.dependOn,
                 'options': this.field.dependValues
             });
+        },
+        clearSelect: function clearSelect(field) {
+            document.getElementById(field).options.length = 1;
+        },
+        createAndAddOptions: function createAndAddOptions(options) {
+            var elem = document.getElementById(options.field);
+            for (var i in options.options) {
+                elem.add(this.createSelectOption(options.options[i]));
+            }
+        },
+        createSelectOption: function createSelectOption(option) {
+            var newOption = document.createElement("option");
+            newOption.text = option;
+            newOption.label = option;
+            return newOption;
         }
     }
 });

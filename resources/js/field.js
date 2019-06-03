@@ -14,7 +14,7 @@ Nova.booting((Vue, router, store) => {
         mutations: {
             ADD_SELECT_OPTION(state, data) {
                 let bExist = false;
-                state.data.forEach(function(item, index) {
+                state.data.forEach(function(item) {
                     if (item.field == data.field) {
                         item.value = data.value;
                         bExist = true;

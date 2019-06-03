@@ -24,29 +24,11 @@ export default {
     mixins: [HandlesValidationErrors, FormField],
 
     mounted() {
-        this.addFieldInfoToStore();
-        const store = Nova.store.getters.getData
-        const fieldAttribute = this.field.attribute;
-        const fieldValue = this.field.value;
-        let newOptions = {};
         const self = this;
-        Object.keys(store).forEach(function(idx) {
-            if (store[idx].dependOn !== undefined) {
-                if (store[idx].field.toLowerCase() === fieldAttribute) {
-                    const dependOn = store[idx].dependOn; 
-                    if (store[idx].dependOn !== undefined) {
-                        Object.keys(store).forEach(function(idx) {
-                            if (store[idx].field === dependOn.toLowerCase()) {
-                                const value = store[idx].value;
-                                const newOptions =  self.addDependFieldOptionsToSelect(store, dependOn, value);
-                            }
-                        });
-                    }
-                                   
-                }
-            }
-        });
+        this.addFieldInfoToStore();
+        self.addOptionsBaseOnTheOptionSelect(this.field.attribute, self)
     },
+
     methods: {
         /**
          * Provide a function that fills a passed FormData object with the
@@ -58,12 +40,37 @@ export default {
         fill(formData) {
             formData.append(this.field.attribute, this.value)
         },
+        
         onClick(value) {
             this.addFieldInfoToStore();
             const store = Nova.store.getters.getData
-            this.addDependFieldOptionsToSelect(store, this.field.attribute, value)
+            this.addDependOptionsToSelect(store, this.field.attribute, value)
         },
-        addDependFieldOptionsToSelect(store, fieldName, value) {
+
+        addOptionsBaseOnTheOptionSelect(field, self) {
+            const store = Nova.store.getters.getData
+            Object.keys(store).forEach(function(idx) {
+                if (store[idx].dependOn !== undefined) {
+                    self.addOptionsToSelect(store, idx, field, self);
+                }
+            });
+        },
+
+        addOptionsToSelect(store, idx, field, self) {
+            if (store[idx].field.toLowerCase() === field.toLowerCase()) {
+                const dependOn = store[idx].dependOn; 
+                if (store[idx].dependOn !== undefined) {
+                    Object.keys(store).forEach(function(key) {
+                        if (store[key].field.toLowerCase() === dependOn.toLowerCase()) {
+                            const value = store[key].value;
+                            self.addDependOptionsToSelect(store, dependOn, value);
+                        }
+                    });
+                }
+            }
+        },
+
+        addDependOptionsToSelect(store, fieldName, value) {
             let newOptions = {};
             Object.keys(store).forEach(function(idx) {
                 if (store[idx].dependOn !== undefined) {
@@ -75,10 +82,10 @@ export default {
                     }
                 }
             });
-            this.addOptionsToSelect(newOptions);
+            this.addOptions(newOptions);
         },
 
-        addOptionsToSelect(options) {
+        addOptions(options) {
             if (! (_.isEmpty(options))) {
                 this.clearSelect(options.field);
                 this.createAndAddOptions(options);

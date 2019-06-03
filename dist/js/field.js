@@ -203,7 +203,7 @@ Nova.booting(function (Vue, router, store) {
         mutations: {
             ADD_SELECT_OPTION: function ADD_SELECT_OPTION(state, data) {
                 var bExist = false;
-                state.data.forEach(function (item, index) {
+                state.data.forEach(function (item) {
                     if (item.field == data.field) {
                         item.value = data.value;
                         bExist = true;
@@ -1525,28 +1525,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     mixins: [__WEBPACK_IMPORTED_MODULE_0_laravel_nova__["HandlesValidationErrors"], __WEBPACK_IMPORTED_MODULE_0_laravel_nova__["FormField"]],
 
     mounted: function mounted() {
-        this.addFieldInfoToStore();
-        var store = Nova.store.getters.getData;
-        var fieldAttribute = this.field.attribute;
-        var fieldValue = this.field.value;
-        var newOptions = {};
         var self = this;
-        Object.keys(store).forEach(function (idx) {
-            if (store[idx].dependOn !== undefined) {
-                if (store[idx].field.toLowerCase() === fieldAttribute) {
-                    var dependOn = store[idx].dependOn;
-                    if (store[idx].dependOn !== undefined) {
-                        Object.keys(store).forEach(function (idx) {
-                            if (store[idx].field === dependOn.toLowerCase()) {
-                                var value = store[idx].value;
-                                var _newOptions = self.addDependFieldOptionsToSelect(store, dependOn, value);
-                            }
-                        });
-                    }
-                }
-            }
-        });
+        this.addFieldInfoToStore();
+        self.addOptionsBaseOnTheOptionSelect(this.field.attribute, self);
     },
+
 
     methods: {
         /**
@@ -1562,9 +1545,30 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         onClick: function onClick(value) {
             this.addFieldInfoToStore();
             var store = Nova.store.getters.getData;
-            this.addDependFieldOptionsToSelect(store, this.field.attribute, value);
+            this.addDependOptionsToSelect(store, this.field.attribute, value);
         },
-        addDependFieldOptionsToSelect: function addDependFieldOptionsToSelect(store, fieldName, value) {
+        addOptionsBaseOnTheOptionSelect: function addOptionsBaseOnTheOptionSelect(field, self) {
+            var store = Nova.store.getters.getData;
+            Object.keys(store).forEach(function (idx) {
+                if (store[idx].dependOn !== undefined) {
+                    self.addOptionsToSelect(store, idx, field, self);
+                }
+            });
+        },
+        addOptionsToSelect: function addOptionsToSelect(store, idx, field, self) {
+            if (store[idx].field.toLowerCase() === field.toLowerCase()) {
+                var dependOn = store[idx].dependOn;
+                if (store[idx].dependOn !== undefined) {
+                    Object.keys(store).forEach(function (key) {
+                        if (store[key].field.toLowerCase() === dependOn.toLowerCase()) {
+                            var value = store[key].value;
+                            self.addDependOptionsToSelect(store, dependOn, value);
+                        }
+                    });
+                }
+            }
+        },
+        addDependOptionsToSelect: function addDependOptionsToSelect(store, fieldName, value) {
             var newOptions = {};
             Object.keys(store).forEach(function (idx) {
                 if (store[idx].dependOn !== undefined) {
@@ -1576,9 +1580,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                     }
                 }
             });
-            this.addOptionsToSelect(newOptions);
+            this.addOptions(newOptions);
         },
-        addOptionsToSelect: function addOptionsToSelect(options) {
+        addOptions: function addOptions(options) {
             if (!_.isEmpty(options)) {
                 this.clearSelect(options.field);
                 this.createAndAddOptions(options);
